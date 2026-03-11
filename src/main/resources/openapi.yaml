@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: German Postcodes API
+  description: REST API for managing German postcodes and their associated place names.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /postcodes:
+    get:
+      summary: Get all postcodes
+      operationId: getAllPostcodes
+      responses:
+        '200':
+          description: List of all postcodes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GermanPostcode'
+              example:
+                - postcode: "10115"
+                  placename: "Berlin"
+                - postcode: "52062"
+                  placename: "Aachen"
+
+    post:
+      summary: Create a postcode
+      operationId: savePostcode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GermanPostcode'
+            example:
+              postcode: "80331"
+              placename: "München"
+      responses:
+        '200':
+          description: The created postcode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GermanPostcode'
+
+  /postcodes/{postcode}:
+    get:
+      summary: Get a postcode by its code
+      operationId: getPostcode
+      parameters:
+        - name: postcode
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "10115"
+      responses:
+        '200':
+          description: The matching postcode entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GermanPostcode'
+        '404':
+          description: Postcode not found
+
+components:
+  schemas:
+    GermanPostcode:
+      type: object
+      required:
+        - postcode
+        - placename
+      properties:
+        postcode:
+          type: string
+          description: The German postcode (Postleitzahl)
+          example: "10115"
+        placename:
+          type: string
+          description: The place name associated with the postcode
+          example: "Berlin"
