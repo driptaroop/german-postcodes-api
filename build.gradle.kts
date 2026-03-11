@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.3.10"
+    id("org.jmailen.kotlinter") version "5.4.2"
 }
 
 group = "org.dripto"
@@ -33,6 +34,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation("io.mockk:mockk:1.14.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

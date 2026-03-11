@@ -1,0 +1,1 @@
+The API contract is documented in `src/main/resources/openapi.yaml` — keep it in sync when changing endpoints.

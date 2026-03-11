@@ -22,13 +22,6 @@ This is a Spring Boot 4 / Kotlin REST API (Java 25 toolchain) with three layers:
 
 The store is pre-seeded with three entries (Berlin, Aachen, Klasdorf) and resets on every restart.
 
-The API contract is documented in `src/main/resources/openapi.yaml` — keep it in sync when changing endpoints.
-
-## Coding Standards
-- Kotlin: follow official style guide; prefer data classes over POJOs
-- No Lombok — we use Kotlin instead
-- Tests: JUnit 5 + MockK + kotest (for assertions); min 80% coverage on new code
-
 ## Known Quirks
 - Do not modify build.gradle.kts without asking first
 

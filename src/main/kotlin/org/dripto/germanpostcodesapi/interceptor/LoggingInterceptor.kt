@@ -10,7 +10,11 @@ import org.springframework.web.servlet.HandlerInterceptor
 class LoggingInterceptor : HandlerInterceptor {
     private val log = LoggerFactory.getLogger(LoggingInterceptor::class.java)
 
-    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+    override fun preHandle(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+    ): Boolean {
         request.setAttribute(REQUEST_START_ATTR, System.currentTimeMillis())
         log.info("→ {} {} from {}", request.method, request.requestURI, request.remoteAddr)
         return true
