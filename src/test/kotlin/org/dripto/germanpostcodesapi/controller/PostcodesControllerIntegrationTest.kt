@@ -4,9 +4,6 @@ import org.dripto.germanpostcodesapi.model.GermanPostcode
 import org.dripto.germanpostcodesapi.store.PostcodeStore
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.types.shouldBeInstanceOf
-import jakarta.servlet.ServletException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.http.MediaType
@@ -78,11 +75,12 @@ class PostcodesControllerIntegrationTest {
     }
 
     @Test
-    fun `GET postcodes by unknown postcode throws for missing key`() {
-        val ex = shouldThrow<ServletException> {
-            mockMvc.get("/postcodes/99999").andReturn()
+    fun `GET postcodes by unknown postcode returns 404`() {
+        mockMvc.get("/postcodes/99999") {
+            accept = MediaType.APPLICATION_JSON
+        }.andExpect {
+            status { isNotFound() }
         }
-        ex.cause.shouldBeInstanceOf<NoSuchElementException>()
     }
 
     // POST /postcodes
