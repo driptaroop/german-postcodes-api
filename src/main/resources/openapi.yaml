@@ -41,8 +41,8 @@ paths:
               postcode: "80331"
               placename: "München"
       responses:
-        '200':
-          description: The created postcode
+        '201':
+          description: Postcode created
           content:
             application/json:
               schema:

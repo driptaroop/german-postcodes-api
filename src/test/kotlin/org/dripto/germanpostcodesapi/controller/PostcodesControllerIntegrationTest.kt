@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.post
 
 @WebMvcTest(PostcodesController::class)
 class PostcodesControllerIntegrationTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -29,106 +28,116 @@ class PostcodesControllerIntegrationTest {
 
     @Test
     fun `GET postcodes returns all seeded entries`() {
-        mockMvc.get("/postcodes") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.length()") { value(3) }
-        }
+        mockMvc
+            .get("/postcodes") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.length()") { value(3) }
+            }
     }
 
     @Test
     fun `GET postcodes returns correct entry data`() {
-        mockMvc.get("/postcodes") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            jsonPath("$[?(@.postcode == '12107')].placename") { value("Berlin") }
-            jsonPath("$[?(@.postcode == '52062')].placename") { value("Aachen") }
-            jsonPath("$[?(@.postcode == '15837')].placename") { value("Klasdorf") }
-        }
+        mockMvc
+            .get("/postcodes") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                jsonPath("$[?(@.postcode == '12107')].placename") { value("Berlin") }
+                jsonPath("$[?(@.postcode == '52062')].placename") { value("Aachen") }
+                jsonPath("$[?(@.postcode == '15837')].placename") { value("Klasdorf") }
+            }
     }
 
     @Test
     fun `GET postcodes returns empty list when store is empty`() {
         PostcodeStore.postcodes.clear()
 
-        mockMvc.get("/postcodes") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$.length()") { value(0) }
-        }
+        mockMvc
+            .get("/postcodes") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.length()") { value(0) }
+            }
     }
 
     // GET /postcodes/{postcode}
 
     @Test
     fun `GET postcodes by postcode returns matching entry`() {
-        mockMvc.get("/postcodes/52062") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$.postcode") { value("52062") }
-            jsonPath("$.placename") { value("Aachen") }
-        }
+        mockMvc
+            .get("/postcodes/52062") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.postcode") { value("52062") }
+                jsonPath("$.placename") { value("Aachen") }
+            }
     }
 
     @Test
     fun `GET postcodes by unknown postcode returns 404`() {
-        mockMvc.get("/postcodes/99999") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isNotFound() }
-        }
+        mockMvc
+            .get("/postcodes/99999") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isNotFound() }
+            }
     }
 
     // POST /postcodes
 
     @Test
     fun `POST postcodes saves new entry and returns it`() {
-        mockMvc.post("/postcodes") {
-            param("postcode", "10115")
-            param("placename", "Berlin Mitte")
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$.postcode") { value("10115") }
-            jsonPath("$.placename") { value("Berlin Mitte") }
-        }
+        mockMvc
+            .post("/postcodes") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"postcode": "10115", "placename": "Berlin Mitte"}"""
+            }.andExpect {
+                status { isCreated() }
+                jsonPath("$.postcode") { value("10115") }
+                jsonPath("$.placename") { value("Berlin Mitte") }
+            }
     }
 
     @Test
     fun `POST postcodes persists entry so it can be retrieved`() {
-        mockMvc.post("/postcodes") {
-            param("postcode", "10115")
-            param("placename", "Berlin Mitte")
-        }.andExpect {
-            status { isOk() }
-        }
+        mockMvc
+            .post("/postcodes") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"postcode": "10115", "placename": "Berlin Mitte"}"""
+            }.andExpect {
+                status { isCreated() }
+            }
 
-        mockMvc.get("/postcodes/10115") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$.postcode") { value("10115") }
-            jsonPath("$.placename") { value("Berlin Mitte") }
-        }
+        mockMvc
+            .get("/postcodes/10115") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.postcode") { value("10115") }
+                jsonPath("$.placename") { value("Berlin Mitte") }
+            }
     }
 
     @Test
     fun `POST postcodes overwrites existing entry`() {
-        mockMvc.post("/postcodes") {
-            param("postcode", "12107")
-            param("placename", "Berlin Updated")
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$.placename") { value("Berlin Updated") }
-        }
+        mockMvc
+            .post("/postcodes") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"postcode": "12107", "placename": "Berlin Updated"}"""
+            }.andExpect {
+                status { isCreated() }
+                jsonPath("$.placename") { value("Berlin Updated") }
+            }
 
-        mockMvc.get("/postcodes/12107") {
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            jsonPath("$.placename") { value("Berlin Updated") }
-        }
+        mockMvc
+            .get("/postcodes/12107") {
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                jsonPath("$.placename") { value("Berlin Updated") }
+            }
     }
 }
