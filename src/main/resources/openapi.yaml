@@ -69,6 +69,22 @@ paths:
         '404':
           description: Postcode not found
 
+    delete:
+      summary: Delete a postcode by its code
+      operationId: deletePostcode
+      parameters:
+        - name: postcode
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "12107"
+      responses:
+        '204':
+          description: Postcode deleted successfully
+        '404':
+          description: Postcode not found
+
 components:
   schemas:
     GermanPostcode:

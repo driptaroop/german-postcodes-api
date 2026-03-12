@@ -5,22 +5,18 @@ import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import org.dripto.germanpostcodesapi.model.GermanPostcode
-import org.junit.jupiter.api.AfterEach
+import org.dripto.germanpostcodesapi.util.PostcodeStoreFixtures
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class PostcodeStoreTest {
     @BeforeEach
-    @AfterEach
     fun resetStore() {
-        PostcodeStore.postcodes.clear()
-        PostcodeStore.postcodes["12107"] = GermanPostcode("12107", "Berlin")
-        PostcodeStore.postcodes["52062"] = GermanPostcode("52062", "Aachen")
-        PostcodeStore.postcodes["15837"] = GermanPostcode("15837", "Klasdorf")
+        PostcodeStoreFixtures.resetToDefaults()
     }
 
     @Test
-    fun `store is pre-seeded with Berlin, Aachen, and Klasdorf`() {
+    fun `store contains the three reset entries at test start`() {
         PostcodeStore.postcodes shouldHaveSize 3
         PostcodeStore.postcodes shouldContainKey "12107"
         PostcodeStore.postcodes shouldContainKey "52062"
