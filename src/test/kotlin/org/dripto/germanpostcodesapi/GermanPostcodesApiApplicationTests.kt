@@ -3,7 +3,7 @@ package org.dripto.germanpostcodesapi
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.dripto.germanpostcodesapi.model.GermanPostcode
-import org.dripto.germanpostcodesapi.util.PostcodeStoreFixtures
+import org.dripto.germanpostcodesapi.repository.PostcodeRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,9 +19,19 @@ class GermanPostcodesApiApplicationTests {
     @Autowired
     lateinit var restTemplate: TestRestTemplate
 
+    @Autowired
+    lateinit var repository: PostcodeRepository
+
     @BeforeEach
-    fun resetStore() {
-        PostcodeStoreFixtures.resetToDefaults()
+    fun resetDatabase() {
+        repository.deleteAll()
+        repository.saveAll(
+            listOf(
+                GermanPostcode("12107", "Berlin"),
+                GermanPostcode("52062", "Aachen"),
+                GermanPostcode("15837", "Klasdorf"),
+            ),
+        )
     }
 
     @Test
@@ -77,7 +87,6 @@ class GermanPostcodesApiApplicationTests {
             )
         response.statusCode shouldBe HttpStatus.NO_CONTENT
 
-        // Verify it's gone
         val getResponse = restTemplate.getForEntity("/postcodes/12107", String::class.java)
         getResponse.statusCode shouldBe HttpStatus.NOT_FOUND
     }

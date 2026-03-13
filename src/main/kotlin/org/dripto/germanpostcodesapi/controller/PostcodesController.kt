@@ -1,7 +1,7 @@
 package org.dripto.germanpostcodesapi.controller
 
 import org.dripto.germanpostcodesapi.model.GermanPostcode
-import org.dripto.germanpostcodesapi.store.PostcodeStore
+import org.dripto.germanpostcodesapi.service.PostcodeService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,30 +13,30 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-class PostcodesController {
+class PostcodesController(
+    private val postcodeService: PostcodeService,
+) {
     @GetMapping("/postcodes")
-    fun getAllPostcodes() = PostcodeStore.postcodes.values.toList()
+    fun getAllPostcodes() = postcodeService.findAll()
 
     @GetMapping("/postcodes/{postcode}")
     fun getPostcode(
         @PathVariable postcode: String,
-    ) = PostcodeStore.postcodes[postcode] ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    ) = postcodeService.findById(postcode) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Postcode $postcode not found")
 
     @PostMapping("/postcodes")
     @ResponseStatus(HttpStatus.CREATED)
     fun savePostcode(
         @RequestBody postcode: GermanPostcode,
-    ): GermanPostcode {
-        PostcodeStore.postcodes[postcode.postcode] = postcode
-        return postcode
-    }
+    ): GermanPostcode = postcodeService.save(postcode)
 
     @DeleteMapping("/postcodes/{postcode}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deletePostcode(
         @PathVariable postcode: String,
     ) {
-        PostcodeStore.postcodes.remove(postcode)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Postcode $postcode not found")
+        if (!postcodeService.deleteById(postcode)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Postcode $postcode not found")
+        }
     }
 }
