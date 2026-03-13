@@ -22,7 +22,7 @@ class PostcodesController(
     @GetMapping("/postcodes/{postcode}")
     fun getPostcode(
         @PathVariable postcode: String,
-    ) = postcodeService.findById(postcode) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    ) = postcodeService.findById(postcode) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Postcode $postcode not found")
 
     @PostMapping("/postcodes")
     @ResponseStatus(HttpStatus.CREATED)

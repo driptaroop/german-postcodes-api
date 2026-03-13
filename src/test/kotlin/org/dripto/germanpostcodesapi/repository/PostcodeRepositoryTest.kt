@@ -5,6 +5,7 @@ import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.optional.shouldNotBePresent
 import io.kotest.matchers.shouldBe
 import org.dripto.germanpostcodesapi.model.GermanPostcode
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
@@ -14,8 +15,20 @@ class PostcodeRepositoryTest {
     @Autowired
     lateinit var repository: PostcodeRepository
 
+    @BeforeEach
+    fun resetDatabase() {
+        repository.deleteAll()
+        repository.saveAll(
+            listOf(
+                GermanPostcode("12107", "Berlin"),
+                GermanPostcode("52062", "Aachen"),
+                GermanPostcode("15837", "Klasdorf"),
+            ),
+        )
+    }
+
     @Test
-    fun `findAll returns the three Liquibase-seeded postcodes`() {
+    fun `findAll returns the three seeded postcodes`() {
         val all = repository.findAll()
         all shouldHaveSize 3
     }
@@ -40,6 +53,15 @@ class PostcodeRepositoryTest {
         val retrieved = repository.findById("10115")
         retrieved.shouldBePresent()
         retrieved.get() shouldBe newEntry
+    }
+
+    @Test
+    fun `save overwrites placename for an existing postcode`() {
+        repository.save(GermanPostcode("12107", "Berlin Updated"))
+
+        val retrieved = repository.findById("12107")
+        retrieved.shouldBePresent()
+        retrieved.get().placename shouldBe "Berlin Updated"
     }
 
     @Test

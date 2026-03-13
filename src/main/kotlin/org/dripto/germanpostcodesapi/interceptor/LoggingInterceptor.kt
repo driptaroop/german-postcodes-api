@@ -24,7 +24,8 @@ class LoggingInterceptor : HandlerInterceptor {
         handler: Any,
         ex: Exception?,
     ) {
-        val durationMs = System.currentTimeMillis() - (request.getAttribute(REQUEST_START_ATTR) as Long)
+        val startTime = request.getAttribute(REQUEST_START_ATTR) as? Long ?: return
+        val durationMs = System.currentTimeMillis() - startTime
         log.info("← {} {} {} {}ms", request.method, request.requestURI, response.status, durationMs)
         if (ex != null) {
             log.error("Unhandled exception for {} {}", request.method, request.requestURI, ex)
