@@ -3,6 +3,7 @@ package org.dripto.germanpostcodesapi.controller
 import org.dripto.germanpostcodesapi.model.GermanPostcode
 import org.dripto.germanpostcodesapi.store.PostcodeStore
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,5 +29,14 @@ class PostcodesController {
     ): GermanPostcode {
         PostcodeStore.postcodes[postcode.postcode] = postcode
         return postcode
+    }
+
+    @DeleteMapping("/postcodes/{postcode}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deletePostcode(
+        @PathVariable postcode: String,
+    ) {
+        PostcodeStore.postcodes.remove(postcode)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Postcode $postcode not found")
     }
 }

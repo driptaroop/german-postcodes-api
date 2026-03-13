@@ -3,13 +3,14 @@ package org.dripto.germanpostcodesapi
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.dripto.germanpostcodesapi.model.GermanPostcode
-import org.dripto.germanpostcodesapi.store.PostcodeStore
+import org.dripto.germanpostcodesapi.util.PostcodeStoreFixtures
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -20,10 +21,7 @@ class GermanPostcodesApiApplicationTests {
 
     @BeforeEach
     fun resetStore() {
-        PostcodeStore.postcodes.clear()
-        PostcodeStore.postcodes["12107"] = GermanPostcode("12107", "Berlin")
-        PostcodeStore.postcodes["52062"] = GermanPostcode("52062", "Aachen")
-        PostcodeStore.postcodes["15837"] = GermanPostcode("15837", "Klasdorf")
+        PostcodeStoreFixtures.resetToDefaults()
     }
 
     @Test
@@ -66,5 +64,33 @@ class GermanPostcodesApiApplicationTests {
 
         getResponse.statusCode shouldBe HttpStatus.OK
         getResponse.body shouldBe GermanPostcode("10115", "Berlin Mitte")
+    }
+
+    @Test
+    fun `DELETE existing postcode returns 204 and removes it`() {
+        val response =
+            restTemplate.exchange(
+                "/postcodes/12107",
+                HttpMethod.DELETE,
+                null,
+                Void::class.java,
+            )
+        response.statusCode shouldBe HttpStatus.NO_CONTENT
+
+        // Verify it's gone
+        val getResponse = restTemplate.getForEntity("/postcodes/12107", String::class.java)
+        getResponse.statusCode shouldBe HttpStatus.NOT_FOUND
+    }
+
+    @Test
+    fun `DELETE non-existent postcode returns 404`() {
+        val response =
+            restTemplate.exchange(
+                "/postcodes/99999",
+                HttpMethod.DELETE,
+                null,
+                Void::class.java,
+            )
+        response.statusCode shouldBe HttpStatus.NOT_FOUND
     }
 }

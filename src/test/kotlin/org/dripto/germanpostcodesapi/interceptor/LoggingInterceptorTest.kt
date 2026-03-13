@@ -1,5 +1,8 @@
 package org.dripto.germanpostcodesapi.interceptor
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.just
@@ -18,19 +21,7 @@ class LoggingInterceptorTest {
     private val handler = mockk<Any>()
 
     @Test
-    fun `preHandle sets requestStartTime attribute on request`() {
-        every { request.method } returns "GET"
-        every { request.requestURI } returns "/postcodes"
-        every { request.remoteAddr } returns "127.0.0.1"
-        every { request.setAttribute(any(), any()) } just runs
-
-        interceptor.preHandle(request, response, handler)
-
-        verify { request.setAttribute("requestStartTime", any<Long>()) }
-    }
-
-    @Test
-    fun `preHandle returns true`() {
+    fun `preHandle sets requestStartTime attribute and returns true`() {
         every { request.method } returns "GET"
         every { request.requestURI } returns "/postcodes"
         every { request.remoteAddr } returns "127.0.0.1"
@@ -38,29 +29,32 @@ class LoggingInterceptorTest {
 
         val result = interceptor.preHandle(request, response, handler)
 
+        verify { request.setAttribute(LoggingInterceptor.REQUEST_START_ATTR, any<Long>()) }
         result shouldBe true
     }
 
     @Test
-    fun `afterCompletion without exception logs completion without error`() {
+    fun `afterCompletion without exception does not throw`() {
         val startTime = System.currentTimeMillis() - 100L
-        every { request.getAttribute("requestStartTime") } returns startTime
+        every { request.getAttribute(LoggingInterceptor.REQUEST_START_ATTR) } returns startTime
         every { request.method } returns "GET"
         every { request.requestURI } returns "/postcodes"
         every { response.status } returns 200
 
-        interceptor.afterCompletion(request, response, handler, null)
+        shouldNotThrowAny { interceptor.afterCompletion(request, response, handler, null) }
     }
 
     @Test
-    fun `afterCompletion with exception also logs error line`() {
+    fun `afterCompletion with exception does not throw`() {
         val startTime = System.currentTimeMillis() - 50L
-        every { request.getAttribute("requestStartTime") } returns startTime
+        every { request.getAttribute(LoggingInterceptor.REQUEST_START_ATTR) } returns startTime
         every { request.method } returns "POST"
         every { request.requestURI } returns "/postcodes"
         every { response.status } returns 500
 
-        interceptor.afterCompletion(request, response, handler, RuntimeException("Something went wrong"))
+        shouldNotThrowAny {
+            interceptor.afterCompletion(request, response, handler, RuntimeException("Something went wrong"))
+        }
     }
 
     @Test
@@ -75,6 +69,8 @@ class LoggingInterceptorTest {
         interceptor.preHandle(request, response, handler)
         val after = System.currentTimeMillis()
 
-        capturedValue.captured shouldBe (capturedValue.captured.coerceIn(before, after))
+        val captured = capturedValue.captured
+        captured shouldBeGreaterThanOrEqualTo before
+        captured shouldBeLessThanOrEqualTo after
     }
 }

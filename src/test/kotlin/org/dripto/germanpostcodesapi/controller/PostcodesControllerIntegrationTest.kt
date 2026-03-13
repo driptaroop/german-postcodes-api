@@ -1,7 +1,7 @@
 package org.dripto.germanpostcodesapi.controller
 
-import org.dripto.germanpostcodesapi.model.GermanPostcode
 import org.dripto.germanpostcodesapi.store.PostcodeStore
+import org.dripto.germanpostcodesapi.util.PostcodeStoreFixtures
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,10 +18,7 @@ class PostcodesControllerIntegrationTest {
 
     @BeforeEach
     fun resetStore() {
-        PostcodeStore.postcodes.clear()
-        PostcodeStore.postcodes["12107"] = GermanPostcode("12107", "Berlin")
-        PostcodeStore.postcodes["52062"] = GermanPostcode("52062", "Aachen")
-        PostcodeStore.postcodes["15837"] = GermanPostcode("15837", "Klasdorf")
+        PostcodeStoreFixtures.resetToDefaults()
     }
 
     // GET /postcodes
